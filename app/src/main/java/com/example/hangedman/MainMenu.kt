@@ -1,23 +1,19 @@
 package com.example.hangedman
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,17 +22,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.hangedman.ui.theme.HangedManTheme
 import com.example.hangedman.ui.theme.Routes
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainMenu(navController: NavController) {
+    var selectedText by remember { mutableStateOf("") }
+    var expanded by remember { mutableStateOf(false) }
+    val difficulty = listOf("Fácil", "Normal", "Difícil")
+    var showNoDiff by remember { mutableStateOf(false) }
+    var showHelp by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -44,50 +41,95 @@ fun MainMenu(navController: NavController) {
     ) {
         Image(
             painter = painterResource(id = R.drawable.logo),
-            contentDescription = "logo"
+            contentDescription = "logo",
+            modifier = Modifier.padding(vertical = 20.dp)
         )
-        DifficultyDropDown()
+        Column(Modifier.padding(20.dp)) {
+            OutlinedTextField(
+                value = selectedText,
+                onValueChange = { selectedText = it },
+                enabled = false,
+                readOnly = true,
+                modifier = Modifier
+                    .clickable { expanded = true }
+                    .fillMaxWidth(),
+                placeholder = { Text(text = "Dificultad") }
+            )
 
-        Button(onClick = {navController.navigate("game") }) {
-            Text(text = "Jugar")
-        }
-        Button(onClick = { /*TODO*/ }) {
-            Text(text = "Ayuda")
-        }
-    }
-
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DifficultyDropDown() {
-    var selectedText by remember { mutableStateOf("") }
-    var expanded by remember { mutableStateOf(false) }
-    val difficulty = listOf("Fácil", "Normal", "Difícil", "Asiático")
-
-    Column(Modifier.padding(20.dp)) {
-        OutlinedTextField(
-            value = selectedText,
-            onValueChange = { selectedText = it },
-            enabled = false,
-            readOnly = true,
-            modifier = Modifier
-                .clickable { expanded = true }
-                .fillMaxWidth(),
-            placeholder = { Text(text = "Dificultad") }
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            difficulty.forEach { difficulty ->
-                DropdownMenuItem(text = { Text(text = difficulty) }, onClick = {
-                    expanded = false
-                    selectedText = difficulty
-                })
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                difficulty.forEach { difficulty ->
+                    DropdownMenuItem(text = { Text(text = difficulty) }, onClick = {
+                        expanded = false
+                        selectedText = difficulty
+                    })
+                }
             }
         }
+
+        Button(onClick = {
+            if (selectedText != "") {
+                navController.navigate(Routes.Game.createRoute(selectedText))
+            } else {
+                showNoDiff = true
+
+            }
+        }) {
+            Text(text = "Jugar")
+        }
+        AlertDialogNoDifficulty(showNoDiff, { showNoDiff = false }, { showNoDiff = false })
+
+
+
+        Button(onClick = { showHelp = true }) {
+            Text(text = "Ayuda")
+        }
+        AlertDialogHelp(showHelp, onDismiss = { showHelp = false }, { showHelp = false })
+    }
+
+}
+
+@Composable
+fun AlertDialogNoDifficulty(show: Boolean, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    if (show) {
+        AlertDialog(onDismissRequest = {},
+            title = { Text(text = "No has elegido dificultad") },
+            text = { Text(text = "Para jugar primero tienes que escoger la dificultad en el menú desplegable de arriba.") },
+            confirmButton = {
+                TextButton(onClick = { onConfirm() }) {
+                    Text(text = "Aceptar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { onDismiss() }) {
+                    Text(text = "Volver")
+
+                }
+            })
     }
 }
+
+@Composable
+fun AlertDialogHelp(show: Boolean, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    if (show) {
+        AlertDialog(onDismissRequest = {},
+            title = { Text(text = "Ayuda") },
+            text = { Text(text = "És el típico juego del colgado, tienes 5 fallos y dependo de la dificultad la palabra será más o menos corta.\n Buena suerte") },
+            confirmButton = {
+                TextButton(onClick = { onConfirm() }) {
+                    Text(text = "Aceptar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { onDismiss() }) {
+                    Text(text = "Volver")
+
+                }
+            })
+    }
+}
+
+

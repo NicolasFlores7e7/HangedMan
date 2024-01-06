@@ -19,17 +19,36 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.hangedman.ui.theme.Routes
+import kotlin.random.Random
 
 @Composable
-fun Game(navController: NavController) {
-    var wordToGuess = "ADIVINAME"
-    var remainingFails by remember { mutableIntStateOf(5) }
-    var hiddenText by remember { mutableStateOf(hideWord(wordToGuess.uppercase())) }
+fun Game(navController: NavController, difficulty:String) {
+    var remainingFails by remember { mutableIntStateOf(99) }
+    var result by remember { mutableStateOf("") }
+    var easy = listOf("pensar","soltar","fuerte")
+    var normal = listOf("importante","desarrollo","naturaleza")
+    var hard = listOf("responsabilidad","particularmente","establecimiento")
+    var randomNum = Random.nextInt(3)
+
+    var wordToGuess = when (difficulty){
+        "Fácil" -> (easy[randomNum].uppercase())
+        "Normal"-> (normal[randomNum].uppercase())
+        else -> (hard[randomNum].uppercase())
+    }
+    var hiddenText by remember { when(difficulty){
+        "Fácil" -> mutableStateOf(hideWord(easy[randomNum].uppercase()))
+        "Normal"-> mutableStateOf(hideWord(normal[randomNum].uppercase()))
+        else -> mutableStateOf(hideWord(hard[randomNum].uppercase()))
+    } }
+
+
     var buttonStates by remember {
         mutableStateOf(
             ('A'..'Z').plus('Ñ').associateWith { true }
         )
     }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -49,6 +68,7 @@ fun Game(navController: NavController) {
                     Button(onClick = {
                         hiddenText =
                             check(hiddenText, wordToGuess, letter)
+                        println(hiddenText)
                         if (checkIfFail(wordToGuess, letter)) {
                             remainingFails--
                         }
@@ -57,8 +77,12 @@ fun Game(navController: NavController) {
                         }
 
                         if(remainingFails==0){
+                            result="Has perdido\nEres malísimo pero no pasa nada \n A llorar a la llorería"
+                            navController.navigate(Routes.ResultScreen.createRoute(result))
                         }
                         if (hiddenText==wordToGuess){
+                            result="Has ganado!! \n Te han sobrado $remainingFails fallos \n ENHORABUENA"
+                            navController.navigate(Routes.ResultScreen.createRoute(result))
 
                         }
                     }, enabled = isEnabled) {
@@ -78,6 +102,7 @@ fun Game(navController: NavController) {
 
 
 fun hideWord(wordToHide: String): String {
+    println(wordToHide)
     return CharArray(wordToHide.length) { '_' }.joinToString("")
 }
 
