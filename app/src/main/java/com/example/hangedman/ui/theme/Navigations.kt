@@ -9,7 +9,5 @@ sealed class Routes (val route:String){
     }
     object ResultScreen:Routes("result/{resultString}/{difficulty}"){
         fun createRoute(resultString: String,difficulty: String)="result/$resultString/$difficulty"
-
     }
-
 }

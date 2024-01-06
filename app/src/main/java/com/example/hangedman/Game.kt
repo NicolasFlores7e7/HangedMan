@@ -1,6 +1,7 @@
 package com.example.hangedman
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,18 +56,21 @@ fun Game(navController: NavController, difficulty:String) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = hiddenText, fontSize = 40.sp, modifier = Modifier.padding(20.dp))
+        Text(text = hiddenText, fontSize = 24.sp, modifier = Modifier.padding(20.dp))
         Image(
             painterResource(id = R.drawable.logo_game),
             contentDescription = "hangedMan",
             modifier = Modifier.padding(20.dp)
         )
 
-        for (row in listOf("QWERTY", "UIOPAS", "DFGHJK", "LÑZXCV", "BNM")) {
+        for (row in listOf("ABCDEF", "GHIJKL", "MNÑOPQ", "RSTUVW", "XYZ")) {
             Row {
                 for (letter in row) {
                     val isEnabled = buttonStates[letter]?:false
-                    Button(onClick = {
+                    Button(
+                        modifier = Modifier
+                            .background(Color(0x1F4FD5)),
+                        onClick = {
                         hiddenText =
                             check(hiddenText, wordToGuess, letter)
                         println(hiddenText)
@@ -78,11 +83,15 @@ fun Game(navController: NavController, difficulty:String) {
 
                         if(remainingFails==0){
                             result="Has perdido\nEres malísimo pero no pasa nada \n A llorar a la llorería"
-                            navController.navigate(Routes.ResultScreen.createRoute(result,difficulty))
+                            navController.navigate(Routes.ResultScreen.createRoute(result,difficulty)) {
+                                popUpTo(Routes.MainMenu.route)
+                            }
                         }
                         if (hiddenText==wordToGuess){
                             result="Has ganado!! \n Te han sobrado $remainingFails fallos \n ENHORABUENA"
-                            navController.navigate(Routes.ResultScreen.createRoute(result,difficulty))
+                            navController.navigate(Routes.ResultScreen.createRoute(result,difficulty)) {
+                                popUpTo(Routes.MainMenu.route)
+                            }
 
                         }
                     }, enabled = isEnabled) {
