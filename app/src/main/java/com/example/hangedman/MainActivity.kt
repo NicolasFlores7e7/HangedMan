@@ -51,7 +51,8 @@ class MainActivity : ComponentActivity() {
                         ) { backStackEntry ->
                             ResultScreen(
                                 navigationController,
-                                backStackEntry.arguments?.getString("resultString") ?: ""
+                                backStackEntry.arguments?.getString("resultString") ?: "",
+                                backStackEntry.arguments?.getString("difficulty") ?: ""
                             )
                         }
                     }

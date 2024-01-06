@@ -24,12 +24,12 @@ import kotlin.random.Random
 
 @Composable
 fun Game(navController: NavController, difficulty:String) {
-    var remainingFails by remember { mutableIntStateOf(99) }
+    var remainingFails by remember { mutableIntStateOf(5) }
     var result by remember { mutableStateOf("") }
     var easy = listOf("pensar","soltar","fuerte")
     var normal = listOf("importante","desarrollo","naturaleza")
     var hard = listOf("responsabilidad","particularmente","establecimiento")
-    var randomNum = Random.nextInt(3)
+    var randomNum by remember{ mutableIntStateOf(Random.nextInt(3)) }
 
     var wordToGuess = when (difficulty){
         "Fácil" -> (easy[randomNum].uppercase())
@@ -78,11 +78,11 @@ fun Game(navController: NavController, difficulty:String) {
 
                         if(remainingFails==0){
                             result="Has perdido\nEres malísimo pero no pasa nada \n A llorar a la llorería"
-                            navController.navigate(Routes.ResultScreen.createRoute(result))
+                            navController.navigate(Routes.ResultScreen.createRoute(result,difficulty))
                         }
                         if (hiddenText==wordToGuess){
                             result="Has ganado!! \n Te han sobrado $remainingFails fallos \n ENHORABUENA"
-                            navController.navigate(Routes.ResultScreen.createRoute(result))
+                            navController.navigate(Routes.ResultScreen.createRoute(result,difficulty))
 
                         }
                     }, enabled = isEnabled) {

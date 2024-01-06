@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 @Composable
-fun ResultScreen(navController: NavController, result: String) {
+fun ResultScreen(navController: NavController, result: String, difficulty:String) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
@@ -35,7 +35,9 @@ fun ResultScreen(navController: NavController, result: String) {
         Button(onClick = { navController.navigate("mainMenu") }) {
             Text(text = "Menú")
         }
-        Button(onClick = { navController.navigate("game") }) {
+        Button(onClick = { Routes.Game.createRoute(difficulty)
+        println(difficulty)
+        }) {
             Text(text = "Volver a jugar")
         }
     }
