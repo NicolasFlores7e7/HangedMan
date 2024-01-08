@@ -1,12 +1,14 @@
 package com.example.hangedman
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,7 +19,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -25,30 +30,33 @@ import com.example.hangedman.ui.theme.Routes
 import kotlin.random.Random
 
 @Composable
-fun Game(navController: NavController, difficulty:String) {
+fun Game(navController: NavController, difficulty: String) {
     var remainingFails by remember { mutableIntStateOf(5) }
     var result by remember { mutableStateOf("") }
-    var easy = listOf("pensar","soltar","fuerte")
-    var normal = listOf("importante","desarrollo","naturaleza")
-    var hard = listOf("responsabilidad","particularmente","establecimiento")
-    var randomNum by remember{ mutableIntStateOf(Random.nextInt(3)) }
+    var easy = listOf("pensar", "soltar", "fuerte")
+    var normal = listOf("importante", "desarrollo", "naturaleza")
+    var hard = listOf("responsabilidad", "particularmente", "establecimiento")
+    var randomNum by remember { mutableIntStateOf(Random.nextInt(3)) }
+    val fonts = FontFamily(
+        Font(R.font.aesthetic_rainbow)
+    )
 
-    var wordToGuess = when (difficulty){
+    var wordToGuess = when (difficulty) {
         "Fácil" -> (easy[randomNum].uppercase())
-        "Normal"-> (normal[randomNum].uppercase())
+        "Normal" -> (normal[randomNum].uppercase())
         else -> (hard[randomNum].uppercase())
     }
-    var hiddenText by remember { when(difficulty){
-        "Fácil" -> mutableStateOf(hideWord(easy[randomNum].uppercase()))
-        "Normal"-> mutableStateOf(hideWord(normal[randomNum].uppercase()))
-        else -> mutableStateOf(hideWord(hard[randomNum].uppercase()))
-    } }
+    var hiddenText by remember {
+        when (difficulty) {
+            "Fácil" -> mutableStateOf(hideWord(easy[randomNum].uppercase()))
+            "Normal" -> mutableStateOf(hideWord(normal[randomNum].uppercase()))
+            else -> mutableStateOf(hideWord(hard[randomNum].uppercase()))
+        }
+    }
 
 
     var buttonStates by remember {
-        mutableStateOf(
-            ('A'..'Z').plus('Ñ').associateWith { true }
-        )
+        mutableStateOf(('A'..'Z').plus('Ñ').associateWith { true })
     }
 
     Column(
@@ -56,7 +64,13 @@ fun Game(navController: NavController, difficulty:String) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = hiddenText, fontSize = 24.sp, modifier = Modifier.padding(20.dp))
+        Text(
+            text = hiddenText,
+            fontSize = 24.sp,
+            fontFamily = fonts,
+            modifier = Modifier.padding(20.dp)
+
+        )
         Image(
             painterResource(id = R.drawable.logo_game),
             contentDescription = "hangedMan",
@@ -66,36 +80,53 @@ fun Game(navController: NavController, difficulty:String) {
         for (row in listOf("ABCDEF", "GHIJKL", "MNÑOPQ", "RSTUVW", "XYZ")) {
             Row {
                 for (letter in row) {
-                    val isEnabled = buttonStates[letter]?:false
+                    val isEnabled = buttonStates[letter] ?: false
                     Button(
-                        modifier = Modifier
-                            .background(Color(0x1F4FD5)),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF051620)
+                        ),
+                        shape = RectangleShape,
+                        border = BorderStroke(1.dp, Color(188, 201, 214, 255)),
+
                         onClick = {
-                        hiddenText =
-                            check(hiddenText, wordToGuess, letter)
-                        println(hiddenText)
-                        if (checkIfFail(wordToGuess, letter)) {
-                            remainingFails--
-                        }
-                        buttonStates = buttonStates.toMutableMap().apply {
-                            this[letter] = false
-                        }
-
-                        if(remainingFails==0){
-                            result="Has perdido\nEres malísimo pero no pasa nada \n A llorar a la llorería"
-                            navController.navigate(Routes.ResultScreen.createRoute(result,difficulty)) {
-                                popUpTo(Routes.MainMenu.route)
+                            hiddenText = check(hiddenText, wordToGuess, letter)
+                            println(hiddenText)
+                            if (checkIfFail(wordToGuess, letter)) {
+                                remainingFails--
                             }
-                        }
-                        if (hiddenText==wordToGuess){
-                            result="Has ganado!! \n Te han sobrado $remainingFails fallos \n ENHORABUENA"
-                            navController.navigate(Routes.ResultScreen.createRoute(result,difficulty)) {
-                                popUpTo(Routes.MainMenu.route)
+                            buttonStates = buttonStates.toMutableMap().apply {
+                                this[letter] = false
                             }
 
-                        }
-                    }, enabled = isEnabled) {
-                        Text(text = letter.toString())
+                            if (remainingFails == 0) {
+                                result = "Has perdido"
+                                navController.navigate(
+                                    Routes.ResultScreen.createRoute(
+                                        result, difficulty
+                                    )
+                                ) {
+                                    popUpTo(Routes.MainMenu.route)
+                                }
+                            }
+                            if (hiddenText == wordToGuess) {
+                                result =
+                                    "Has ganado!! \n Te han sobrado $remainingFails fallos. \n ENHORABUENA"
+                                navController.navigate(
+                                    Routes.ResultScreen.createRoute(
+                                        result, difficulty
+                                    )
+                                ) {
+                                    popUpTo(Routes.MainMenu.route)
+                                }
+
+                            }
+                        },
+                        enabled = isEnabled
+                    ) {
+                        Text(
+                            text = letter.toString(),
+                            fontFamily = fonts,
+                        )
                     }
                 }
             }
@@ -103,6 +134,7 @@ fun Game(navController: NavController, difficulty:String) {
 
         Text(
             text = "Fallos restantes = $remainingFails",
+            fontFamily = fonts,
             fontSize = 30.sp,
             modifier = Modifier.padding(20.dp)
         )

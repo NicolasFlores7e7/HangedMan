@@ -3,9 +3,7 @@ package com.example.hangedman
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -25,10 +23,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             HangedManTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = Color(0xFFFFE8)
+                    color = Color(189, 203, 216, 255)
                 ) {
                     val navigationController = rememberNavController()
                     NavHost(
@@ -37,13 +34,16 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable(Routes.SplashScreen.route) { SplashScreen(navigationController) }
                         composable(Routes.MainMenu.route) { MainMenu(navigationController) }
-                        composable(Routes.Game.route,
-                            arguments = listOf(navArgument("difficulty"){
+                        composable(
+                            Routes.Game.route,
+                            arguments = listOf(navArgument("difficulty") {
                                 type = NavType.StringType
                             })
-                        ) {backStackEntry ->
-                            Game(navigationController,
-                                backStackEntry.arguments?.getString("difficulty") ?:"")
+                        ) { backStackEntry ->
+                            Game(
+                                navigationController,
+                                backStackEntry.arguments?.getString("difficulty") ?: ""
+                            )
                         }
                         composable(
                             Routes.ResultScreen.route,
