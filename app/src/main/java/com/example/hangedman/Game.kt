@@ -1,5 +1,6 @@
 package com.example.hangedman
 
+import android.provider.CalendarContract.Colors
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -81,10 +83,15 @@ fun Game(navController: NavController, difficulty: String) {
             Row {
                 for (letter in row) {
                     val isEnabled = buttonStates[letter] ?: false
+                    var buttonColor by remember { mutableStateOf(Color(0xFF051620)) }
+
                     Button(
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF051620)
+                            containerColor = buttonColor,
+                            disabledContentColor = buttonColor,
+                            disabledContainerColor = Color(0xB2051620)
                         ),
+
                         shape = RectangleShape,
                         border = BorderStroke(1.dp, Color(188, 201, 214, 255)),
 
@@ -93,7 +100,8 @@ fun Game(navController: NavController, difficulty: String) {
                             println(hiddenText)
                             if (checkIfFail(wordToGuess, letter)) {
                                 remainingFails--
-                            }
+                                buttonColor = Color.Red
+                            }else buttonColor = Color.Green
                             buttonStates = buttonStates.toMutableMap().apply {
                                 this[letter] = false
                             }
@@ -121,11 +129,14 @@ fun Game(navController: NavController, difficulty: String) {
 
                             }
                         },
-                        enabled = isEnabled
-                    ) {
+                        enabled = isEnabled,
+
+
+                        ) {
                         Text(
                             text = letter.toString(),
                             fontFamily = fonts,
+                            fontSize = 16.sp,
                         )
                     }
                 }
